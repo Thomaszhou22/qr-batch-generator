@@ -18,8 +18,18 @@ function generateId() {
   return Math.random().toString(36).slice(2, 10)
 }
 
+function normalizeContent(content: string): string {
+  const trimmed = content.trim()
+  if (/^https?:\/\//i.test(trimmed) || trimmed === '') return trimmed
+  // Looks like a URL (domain with dot, no spaces)
+  if (/^[\w\-]+(\.[\w\-]+)+/.test(trimmed) && !/\s/.test(trimmed)) {
+    return 'https://' + trimmed
+  }
+  return trimmed
+}
+
 async function generateQR(item: QRItem): Promise<string> {
-  return QRCode.toDataURL(item.content, {
+  return QRCode.toDataURL(normalizeContent(item.content), {
     width: item.size,
     margin: 1,
     color: { dark: item.color, light: '#ffffff' },
